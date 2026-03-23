@@ -8,12 +8,28 @@ const Login = () => {
       <Card className="login-container">
         <img className="login-logo" src={logo} alt="" />
         {/* 登录表单 */}
-        <Form>
-          <Form.Item>
-            <Input size="large" placeholder="请输入手机号" />
+        {/* バリデーションのトリガー */}
+        <Form validateTrigger={['onBlur']}>
+          {/* バリデーションルールの追加 */}
+          <Form.Item
+            name='mobile'
+            rules={[
+              { required: true, message: '電話番号を入力してください' },
+              {
+                pattern: /^0[789]0\d{8}$/,
+                message: '電話番号を正しく入力してください'
+              }
+            ]}
+          >
+            <Input size="large" placeholder="電話番号を入力してください" />
           </Form.Item>
-          <Form.Item>
-            <Input size="large" placeholder="请输入验证码" />
+          <Form.Item
+            name='code'
+            rules={[
+              { required: true, message: '検証番号を入力してください' },
+            ]}
+          >
+            <Input size="large" placeholder="検証番号を入力してください" maxLength={6} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" size="large" block>
