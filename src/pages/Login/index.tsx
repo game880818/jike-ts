@@ -2,11 +2,8 @@ import './index.scss'
 import { Card, Form, Input, Button } from 'antd'
 import logo from '@/assets/logo.png'
 
-// データ構造 / 型（かた）を定義する
-interface LoginFormValues {
-  mobile: string;
-  code: string;
-}
+// データ構造 / 型（かた）を導入
+import type { LoginFormValues } from '@/store/userStore'
 
 const Login = () => {
   const onFinish = (formValue: LoginFormValues) => {
