@@ -2,14 +2,27 @@ import './index.scss'
 import { Card, Form, Input, Button } from 'antd'
 import logo from '@/assets/logo.png'
 
+// データ構造 / 型（かた）を定義する
+interface LoginFormValues {
+  mobile: string;
+  code: string;
+}
+
 const Login = () => {
+  const onFinish = (formValue: LoginFormValues) => {
+    console.log(formValue)
+  }
+
   return (
     <div className="login">
       <Card className="login-container">
         <img className="login-logo" src={logo} alt="" />
         {/* 登录表单 */}
         {/* バリデーションのトリガー */}
-        <Form validateTrigger={['onBlur']}>
+        <Form
+          validateTrigger={['onBlur']}
+          onFinish={onFinish}
+        >
           {/* バリデーションルールの追加 */}
           <Form.Item
             name='mobile'
