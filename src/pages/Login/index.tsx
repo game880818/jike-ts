@@ -3,7 +3,7 @@ import { Card, Form, Input, Button } from 'antd'
 import logo from '@/assets/logo.png'
 
 // データ構造 / 型（かた）を導入
-import type { LoginFormValues } from '@/store/userStore'
+import type { LoginFormValues } from '@/store/modules/userStore'
 
 const Login = () => {
   const onFinish = (formValue: LoginFormValues) => {

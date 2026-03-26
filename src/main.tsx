@@ -5,7 +5,16 @@ import './index.scss'
 import router from './router/index.tsx'
 import { RouterProvider } from 'react-router-dom'
 
+// store 
+import { Provider } from 'react-redux'
+import store from './store/index.tsx'
+
+
 createRoot(document.getElementById('root')!).render(
-  // routerを導入
-  <RouterProvider router={router} />
+  // storeを導入
+  <Provider store={store}>
+    {/*  routerを導入 */}
+    <RouterProvider router={router} />
+  </Provider>
+
 )
