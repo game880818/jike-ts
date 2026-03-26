@@ -1,13 +1,20 @@
 import './index.scss'
-import { Card, Form, Input, Button } from 'antd'
+import { Card, Form, Input, Button, message } from 'antd'
 import logo from '@/assets/logo.png'
 
+import { useDispatch } from 'react-redux'
+
 // データ構造 / 型（かた）を導入
-import type { LoginFormValues } from '@/store/modules/userStore'
+import { fetchLogin, type LoginFormValues } from '@/store/modules/userStore'
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
-  const onFinish = (formValue: LoginFormValues) => {
-    console.log(formValue)
+  const dispatch = useDispatch()
+  const nevigate = useNavigate()
+  const onFinish = async (formValue: LoginFormValues) => {
+    await (dispatch as any)(fetchLogin(formValue))
+    nevigate('/')
+    message.success('ログイン成功')
   }
 
   return (
@@ -26,7 +33,7 @@ const Login = () => {
             rules={[
               { required: true, message: '電話番号を入力してください' },
               {
-                pattern: /^0[789]0\d{8}$/,
+                pattern: /^1[3-9]\d{9}$/,
                 message: '電話番号を正しく入力してください'
               }
             ]}
