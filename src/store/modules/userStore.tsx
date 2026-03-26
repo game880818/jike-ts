@@ -18,6 +18,7 @@ const userStore = createSlice({
   initialState,
   // 同步修改方法
   reducers: {
+    // payloadのかたを明確にする
     setUserToken(state, action: PayloadAction<string>) {
       state.token = action.payload
       setToken(state.token)
