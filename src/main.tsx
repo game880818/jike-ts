@@ -9,6 +9,9 @@ import { RouterProvider } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from './store/index.tsx'
 
+// initialize style
+import "normalize.css"
+
 
 createRoot(document.getElementById('root')!).render(
   // storeを導入
