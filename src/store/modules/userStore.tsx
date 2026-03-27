@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import { request } from "@/utils"
 import { clearToken, getToken, setToken } from "@/utils/token";
+import { getUserInfoAPI, loginAPI } from '@/apis/user';
 
 interface UserInfo {
   id: string,
@@ -62,7 +62,7 @@ const userReducer = userStore.reducer
 const fetchLogin = (loginFrom: LoginFormValues) => {
   return async (dispatch: any) => {
     // 非同期リクエストを送信
-    const res = await request.post('/authorizations', loginFrom)
+    const res = await loginAPI(loginFrom)
     // token を更新 
     dispatch(setUserToken(res.data.token))
   }
@@ -72,7 +72,7 @@ const fetchLogin = (loginFrom: LoginFormValues) => {
 const fetchLoginUserInfo = () => {
   return async (dispatch: any) => {
     // 非同期リクエストを送信
-    const res = await request.get('/user/profile')
+    const res = await getUserInfoAPI()
     // userInfo を更新 
     dispatch(setUserInfo(res.data))
   }
