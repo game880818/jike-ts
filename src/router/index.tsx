@@ -10,11 +10,13 @@ import Publish from "@/pages/Publish";
 
 const router = createBrowserRouter([
   {
+    // 親ルート
     path: '/',
     element:
       <AuthRoute>
         <Layout />
       </AuthRoute>,
+    // 子ルート
     children: [
       {
         index: true,
