@@ -1,5 +1,6 @@
 import axios from 'axios'
-import { getToken } from './token'
+import { clearToken, getToken } from './token'
+import router from '@/router'
 
 
 const http = axios.create({
@@ -27,6 +28,15 @@ http.interceptors.response.use((response) => {
 }, (error) => {
   // 超出 2xx 范围的状态码都会触发该函数。
   // 对响应错误做点什么
+
+  // 401 錯誤碼處理
+  if (error.response.status === 401) {
+    // 清除 token
+    clearToken()
+    // 跳转到登录页
+    router.navigate('/login')
+    // window.location.href = '/login'
+  }
   return Promise.reject(error)
 })
 
