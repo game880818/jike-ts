@@ -15,6 +15,8 @@ import { useAppDispatch } from '@/components/useAppDispatch';
 import { fetchLoginUserInfo } from '@/store/modules/userStore';
 import { useSelector } from 'react-redux';
 
+import type { RootState } from '@/store';
+
 
 const { Header, Sider } = Layout
 
@@ -44,7 +46,7 @@ const GeekLayout = () => {
   // 現在のパスを取得
   const currentPath = location.pathname
   // 現在のログインユーザーの名前を取得
-  const name = useSelector((state: any) => state.user.userInfo.name)
+  const name = useSelector((state: RootState) => state.user.userInfo.name)
 
   useEffect(() => {
     // ログインユーザーの情報を非同期で取得
