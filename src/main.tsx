@@ -7,7 +7,7 @@ import { RouterProvider } from 'react-router-dom'
 
 // store 
 import { Provider } from 'react-redux'
-import store from './store/index.tsx'
+import { store } from './store/index.tsx'
 
 // initialize style
 import "normalize.css"

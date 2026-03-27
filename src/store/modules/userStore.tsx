@@ -2,14 +2,27 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { request } from "@/utils"
 import { getToken, setToken } from "@/utils/token";
 
+interface UserInfo {
+  id: string,
+  photo: string,
+  name: string,
+  mobile: string,
+  gender: number,
+  intro: string,
+  birthday: string,
+}
+
+
 // 1. 先定義 State 的結構 (型別定義)
 interface UserState {
-  token: string
+  token: string,
+  userInfo: UserInfo
 }
 
 // 2. 初始值
 const initialState: UserState = {
-  token: getToken() || ''
+  token: getToken() || '',
+  userInfo: {} as UserInfo
 }
 
 const userStore = createSlice({
@@ -22,6 +35,9 @@ const userStore = createSlice({
     setUserToken(state, action: PayloadAction<string>) {
       state.token = action.payload
       setToken(state.token)
+    },
+    setUserInfo(state, action: PayloadAction<UserInfo>) {
+      state.userInfo = action.payload
     }
   }
 })
@@ -32,10 +48,12 @@ export interface LoginFormValues {
 }
 
 // actionCreator を分割代入
-const { setUserToken } = userStore.actions
+const { setUserToken, setUserInfo } = userStore.actions
 // reducer 関数を取得
 const userReducer = userStore.reducer
+
 // 非同期メソッドのカプセル化
+// ログイン処理を非同期で行う
 const fetchLogin = (loginFrom: LoginFormValues) => {
   return async (dispatch: any) => {
     // 非同期リクエストを送信
@@ -45,5 +63,15 @@ const fetchLogin = (loginFrom: LoginFormValues) => {
   }
 }
 
-export { fetchLogin }
+// ログインユーザーの情報を非同期で取得
+const fetchLoginUserInfo = () => {
+  return async (dispatch: any) => {
+    // 非同期リクエストを送信
+    const res = await request.get('/user/profile')
+    // userInfo を更新 
+    dispatch(setUserInfo(res.data))
+  }
+}
+
+export { fetchLogin, fetchLoginUserInfo }
 export default userReducer
