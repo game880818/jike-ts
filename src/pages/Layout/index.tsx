@@ -12,7 +12,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { useEffect } from 'react';
 import { useAppDispatch } from '@/components/useAppDispatch';
-import { fetchLoginUserInfo } from '@/store/modules/userStore';
+import { clearUser, fetchLoginUserInfo } from '@/store/modules/userStore';
 import { useSelector } from 'react-redux';
 
 import type { RootState } from '@/store';
@@ -58,6 +58,14 @@ const GeekLayout = () => {
     // クリックしたメニューのパスを取得
     navigate(e.key);
   }
+
+  // ログアウト処理
+  const onConfirm = () => {
+    // userInfo をクリア
+    dispatch(clearUser())
+    // ログアウト処理を完了
+    navigate('/login')
+  }
   return (
     <Layout>
       <Header className="header">
@@ -65,7 +73,12 @@ const GeekLayout = () => {
         <div className="user-info">
           <span className="user-name">{name}</span>
           <span className="user-logout">
-            <Popconfirm title="ログアウトしますか？" okText="ログアウト" cancelText="キャンセル">
+            <Popconfirm
+              title="ログアウトしますか？"
+              okText="ログアウト"
+              cancelText="キャンセル"
+              onConfirm={onConfirm}
+            >
               <LogoutOutlined /> ログアウト
             </Popconfirm>
           </span>

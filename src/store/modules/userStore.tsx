@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { request } from "@/utils"
-import { getToken, setToken } from "@/utils/token";
+import { clearToken, getToken, setToken } from "@/utils/token";
 
 interface UserInfo {
   id: string,
@@ -38,6 +38,11 @@ const userStore = createSlice({
     },
     setUserInfo(state, action: PayloadAction<UserInfo>) {
       state.userInfo = action.payload
+    },
+    clearUser(state) {
+      state.token = '',
+        state.userInfo = {} as UserInfo,
+        clearToken()
     }
   }
 })
@@ -48,7 +53,7 @@ export interface LoginFormValues {
 }
 
 // actionCreator を分割代入
-const { setUserToken, setUserInfo } = userStore.actions
+const { setUserToken, setUserInfo, clearUser } = userStore.actions
 // reducer 関数を取得
 const userReducer = userStore.reducer
 
@@ -73,5 +78,5 @@ const fetchLoginUserInfo = () => {
   }
 }
 
-export { fetchLogin, fetchLoginUserInfo }
+export { fetchLogin, fetchLoginUserInfo, clearUser }
 export default userReducer
