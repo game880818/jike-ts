@@ -13,6 +13,10 @@ import { PlusOutlined } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
 import './index.scss'
 
+import React, { useState } from 'react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css'; // 這是 Snow 主題（白底）
+
 const { Option } = Select
 
 const Publish = () => {
@@ -33,26 +37,32 @@ const Publish = () => {
           initialValues={{ type: 1 }}
         >
           <Form.Item
-            label="标题"
+            label="タイトル"
             name="title"
-            rules={[{ required: true, message: '请输入文章标题' }]}
+            rules={[{ required: true, message: 'タイトルを入力してください' }]}
           >
-            <Input placeholder="请输入文章标题" style={{ width: 400 }} />
+            <Input placeholder="タイトルを入力してください" style={{ width: 400 }} />
           </Form.Item>
           <Form.Item
-            label="频道"
+            label="種類"
             name="channel_id"
-            rules={[{ required: true, message: '请选择文章频道' }]}
+            rules={[{ required: true, message: '種類を選択してください' }]}
           >
-            <Select placeholder="请选择文章频道" style={{ width: 400 }}>
-              <Option value={0}>推荐</Option>
+            <Select placeholder="種類を選択してください" style={{ width: 400 }}>
+              <Option value={0}>おすすめ</Option>
             </Select>
           </Form.Item>
           <Form.Item
             label="内容"
             name="content"
-            rules={[{ required: true, message: '请输入文章内容' }]}
-          ></Form.Item>
+            rules={[{ required: true, message: '文章を入力してください' }]}
+          >
+            <ReactQuill
+              className="publish-quill"
+              theme="snow"
+              placeholder="文章を入力してください"
+            />
+          </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 4 }}>
             <Space>
