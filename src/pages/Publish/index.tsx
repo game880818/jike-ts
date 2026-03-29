@@ -8,7 +8,8 @@ import {
   Upload,
   Space,
   Select,
-  message
+  message,
+  type RadioChangeEvent
 } from 'antd'
 import type { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import { PlusOutlined } from '@ant-design/icons'
@@ -42,6 +43,7 @@ export interface FormValue {
 const Publish = () => {
   const [channel, setChannel] = useState<ChannelItem[]>([])
   const [imageList, setImageList] = useState<UploadFile[]>([])
+  const [imageType, setImageType] = useState<number>(1)
 
   useEffect(() => {
     async function getChannel() {
@@ -73,6 +75,11 @@ const Publish = () => {
   function onUploadChange(info: UploadChangeParam<UploadFile>) {
     console.log(info);
     setImageList(info.fileList)
+  }
+
+  // 種類を変更する関数
+  function onTypeChange(e: RadioChangeEvent) {
+    setImageType(Number(e.target.value))
   }
 
   return (
@@ -117,23 +124,25 @@ const Publish = () => {
           </Form.Item>
           <Form.Item label="封面">
             <Form.Item name="type">
-              <Radio.Group>
+              <Radio.Group onChange={onTypeChange}>
                 <Radio value={1}>单图</Radio>
                 <Radio value={3}>三图</Radio>
                 <Radio value={0}>无图</Radio>
               </Radio.Group>
             </Form.Item>
-            <Upload
-              name="image"
-              listType="picture-card"
-              showUploadList
-              action={'http://geek.itheima.net/v1_0/upload'}
-              onChange={onUploadChange}
-            >
-              <div style={{ marginTop: 8 }}>
-                <PlusOutlined />
-              </div>
-            </Upload>
+            {imageType > 0 &&
+              <Upload
+                name="image"
+                listType="picture-card"
+                showUploadList
+                action={'http://geek.itheima.net/v1_0/upload'}
+                onChange={onUploadChange}
+              >
+                <div style={{ marginTop: 8 }}>
+                  <PlusOutlined />
+                </div>
+              </Upload>
+            }
           </Form.Item>
           <Form.Item
             label="内容"
