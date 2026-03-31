@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom'
+
 import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select, Tag, Space, Table } from 'antd'
 import locale from 'antd/es/date-picker/locale/zh_CN'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import img404 from '@/assets/error.png'
+
+
+import useGetChannel from '@/hooks/useGetChannel'
 
 const { Option } = Select
 const { RangePicker } = DatePicker
@@ -88,6 +92,7 @@ const Article = () => {
       }
     }
   ]
+  const { channel } = useGetChannel()
 
   return (
     <div>
@@ -112,11 +117,9 @@ const Article = () => {
           <Form.Item label="频道" name="channel_id">
             <Select
               placeholder="请选择文章频道"
-              defaultValue="lucy"
-              style={{ width: 120 }}
+              style={{ width: 200 }}
             >
-              <Option value="jack">Jack</Option>
-              <Option value="lucy">Lucy</Option>
+              {channel.map(item => <Option key={item.id} value={item.id}>{item.name}</Option>)}
             </Select>
           </Form.Item>
 

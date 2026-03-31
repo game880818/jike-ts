@@ -26,12 +26,7 @@ import 'react-quill-new/dist/quill.snow.css'; // 這是 Snow 主題（白底）
 import { getChannelAPI, publishAPI } from '@/apis/publish';
 
 const { Option } = Select
-
-// 種類の型を定義する
-interface ChannelItem {
-  id: number,
-  name: string
-}
+import useGetChannel from '@/hooks/useGetChannel';
 
 // フォームの値の型を定義する
 export interface FormValue {
@@ -41,17 +36,11 @@ export interface FormValue {
 }
 
 const Publish = () => {
-  const [channel, setChannel] = useState<ChannelItem[]>([])
+  const { channel } = useGetChannel()
   const [imageList, setImageList] = useState<UploadFile[]>([])
   const [imageType, setImageType] = useState<number>(1)
 
-  useEffect(() => {
-    async function getChannel() {
-      const res = await getChannelAPI()
-      setChannel(res.data.channels)
-    }
-    getChannel()
-  }, [])
+
 
   // 文章を公開する関数
   async function onFormFinish(formValue: FormValue) {

@@ -11,7 +11,7 @@ import './index.scss'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { useEffect } from 'react';
-import { useAppDispatch } from '@/components/useAppDispatch';
+import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { clearUser, fetchLoginUserInfo } from '@/store/modules/userStore';
 import { useSelector } from 'react-redux';
 
