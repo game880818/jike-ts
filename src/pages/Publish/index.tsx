@@ -55,20 +55,30 @@ const Publish = () => {
 
   // 文章を公開する関数
   async function onFormFinish(formValue: FormValue) {
-    const { title, channel_id, content } = formValue
-    const params = {
-      title,
-      channel_id,
-      content,
-      type: 1,
-      cover: {
-        type: 1,
-        image: []
+    // 画像のアップロード終わったかどうかをチェックする
+    try {
+      if (imageType !== imageList.length) {
+        message.error('画像数と要求された画像数が一致しません')
+        return
       }
+      const { title, channel_id, content } = formValue
+      const params = {
+        title,
+        channel_id,
+        content,
+        type: 1,
+        cover: {
+          type: 1,
+          image: imageList.map(item => item.response.url)
+        }
+      }
+      console.log(params);
+      // 文章を公開する
+      await publishAPI(params)
+      message.success('文章が成功に公開されました')
+    } catch (err) {
+      message.error('文章が公開できませんでした')
     }
-    // 文章を公開する
-    await publishAPI(params)
-    message.success('文章が成功に公開されました')
   }
 
   // 画像をアップロードする関数
