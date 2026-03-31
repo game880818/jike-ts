@@ -1,17 +1,20 @@
 import { Link } from 'react-router-dom'
 
 import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select, Tag, Space, Table } from 'antd'
-import locale from 'antd/es/date-picker/locale/zh_CN'
+import locale from 'antd/es/date-picker/locale/ja_JP'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import img404 from '@/assets/error.png'
 
 
 import useGetChannel from '@/hooks/useGetChannel'
+import { useEffect, useState } from 'react'
+import { getArticleListAPI } from '@/apis/article'
 
 const { Option } = Select
 const { RangePicker } = DatePicker
 
-interface TableData {
+// 文章の資料の型を定義する
+interface ArticleData {
   id: string
   comment_count: number
   cover: {
@@ -23,26 +26,40 @@ interface TableData {
   status: number
   title: string
 }
+// 文章のリストの型を定義する
+interface ListData {
+  list: ArticleData[]
+  count: number
+}
+
+export interface PageData {
+  page: number,
+  per_page: number,
+  begin_pubdate: string | null | undefined,
+  end_pubdate: string | null | undefined,
+  status: string | null | undefined,
+  channel_id: number | null | undefined
+}
 
 const Article = () => {
-  const data: TableData[] = [
-    {
-      id: '8218',
-      comment_count: 0,
-      cover: {
-        images: [],
-      },
-      like_count: 0,
-      pubdate: '2019-03-11 09:00:00',
-      read_count: 2,
-      status: 2,
-      title: 'wkwebview离线化加载h5资源解决方案'
-    }
-  ]
+  // const data: TableData[] = [
+  //   {
+  //     id: '8218',
+  //     comment_count: 0,
+  //     cover: {
+  //       images: [],
+  //     },
+  //     like_count: 0,
+  //     pubdate: '2019-03-11 09:00:00',
+  //     read_count: 2,
+  //     status: 2,
+  //     title: 'wkwebview离线化加载h5资源解决方案'
+  //   }
+  // ]
   // 准备列数据
   const columns = [
     {
-      title: '封面',
+      title: 'カバー',
       dataIndex: 'cover',
       width: 120,
       render: (cover: any) => {
@@ -50,34 +67,34 @@ const Article = () => {
       }
     },
     {
-      title: '标题',
+      title: 'タイトル',
       dataIndex: 'title',
       width: 220
     },
     {
-      title: '状态',
+      title: '状態',
       dataIndex: 'status',
-      render: (data: TableData) => <Tag color="green">审核通过</Tag>
+      render: (data: ArticleData) => <Tag color="green">审核通过</Tag>
     },
     {
-      title: '发布时间',
+      title: '公開日時',
       dataIndex: 'pubdate'
     },
     {
-      title: '阅读数',
+      title: '読み数',
       dataIndex: 'read_count'
     },
     {
-      title: '评论数',
+      title: 'コメント数',
       dataIndex: 'comment_count'
     },
     {
-      title: '点赞数',
+      title: 'いいね数',
       dataIndex: 'like_count'
     },
     {
       title: '操作',
-      render: (data: TableData) => {
+      render: (data: ArticleData) => {
         return (
           <Space size="middle">
             <Button type="primary" shape="circle" icon={<EditOutlined />} />
@@ -93,51 +110,79 @@ const Article = () => {
     }
   ]
   const { channel } = useGetChannel()
-
+  // 文章リスト
+  const [articleList, setArticleList] = useState<ListData>({
+    list: [],
+    count: 0
+  })
+  // ページの条件
+  const [params, setParams] = useState<PageData>({
+    page: 1,
+    per_page: 10,
+    begin_pubdate: '',
+    end_pubdate: '',
+    status: '',
+    channel_id: 0
+  })
+  useEffect(() => {
+    async function fetchArticleList() {
+      const res = await getArticleListAPI(params)
+      console.log(res)
+      setArticleList({
+        list: res.data.results,
+        count: res.data.total_count
+      })
+    }
+    fetchArticleList()
+  }, [])
   return (
     <div>
       <Card
         title={
           <Breadcrumb items={[
-            { title: <Link to={'/'}>首页</Link> },
-            { title: '文章列表' },
+            { title: <Link to={'/'}>ホーム</Link> },
+            { title: '文章リスト' },
           ]} />
         }
         style={{ marginBottom: 20 }}
       >
         <Form initialValues={{ status: '' }}>
-          <Form.Item label="状态" name="status">
+          <Form.Item label="状態" name="status">
             <Radio.Group>
               <Radio value={''}>全部</Radio>
-              <Radio value={0}>草稿</Radio>
-              <Radio value={2}>审核通过</Radio>
+              <Radio value={0}>未公開</Radio>
+              <Radio value={2}>公開</Radio>
             </Radio.Group>
           </Form.Item>
 
-          <Form.Item label="频道" name="channel_id">
+          <Form.Item label="種類" name="channel_id">
             <Select
-              placeholder="请选择文章频道"
+              placeholder="種類を選択"
               style={{ width: 200 }}
             >
               {channel.map(item => <Option key={item.id} value={item.id}>{item.name}</Option>)}
             </Select>
           </Form.Item>
 
-          <Form.Item label="日期" name="date">
-            {/* 传入locale属性 控制中文显示*/}
+          <Form.Item label="公開日時" name="date">
+            {/* 传入locale属性 控制日文显示*/}
             <RangePicker locale={locale}></RangePicker>
           </Form.Item>
 
           <Form.Item>
             <Button type="primary" htmlType="submit" style={{ marginLeft: 40 }}>
-              筛选
+              検索
             </Button>
           </Form.Item>
         </Form>
       </Card>
       {/* 表格数据 */}
-      <Card title={`根据筛选条件共查询到 count 条结果：`}>
-        <Table rowKey="id" columns={columns} dataSource={data} />
+      <Card title={`条件で一致する記事数： ${articleList.count} 件`}>
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={articleList.list}
+        />
       </Card>
     </div>
   )
