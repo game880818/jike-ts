@@ -5,7 +5,7 @@ const Home = () => {
     <div>
       <BarChart
         title="どんな動物が好きですか？"
-        xdata={['Mouse', 'Dog', 'Cat']}
+        xdata={['ネズミ', '犬', '猫']}
         sdata={[70, 110, 200]}
       />
       <BarChart
