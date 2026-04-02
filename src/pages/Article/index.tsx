@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select, Tag, Space, Table } from 'antd'
+import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select, Tag, Space, Table, Popconfirm } from 'antd'
 import locale from 'antd/es/date-picker/locale/ja_JP'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import img404 from '@/assets/error.png'
@@ -8,18 +8,22 @@ import img404 from '@/assets/error.png'
 
 import useGetChannel from '@/hooks/useGetChannel'
 import { useEffect, useState } from 'react'
-import { getArticleListAPI } from '@/apis/article'
+import { delArticleAPI, getArticleListAPI } from '@/apis/article'
 
 const { Option } = Select
 const { RangePicker } = DatePicker
+
+// カバーの型を定義する
+interface CoverData {
+  type?: number
+  images: string[]
+}
 
 // 文章の資料の型を定義する
 interface ArticleData {
   id: string
   comment_count: number
-  cover: {
-    images: string[]
-  }
+  cover: CoverData
   like_count: number
   pubdate: string
   read_count: number
@@ -101,16 +105,23 @@ const Article = () => {
     },
     {
       title: '操作',
-      render: (data: any) => {
+      render: (data: ArticleData) => {
         return (
           <Space size="middle">
             <Button type="primary" shape="circle" icon={<EditOutlined />} />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-            />
+            <Popconfirm
+              title="この記事を削除しますか?"
+              onConfirm={() => delArticle(data)}
+              okText="確認"
+              cancelText="キャンセル"
+            >
+              <Button
+                type="primary"
+                danger
+                shape="circle"
+                icon={<DeleteOutlined />}
+              />
+            </Popconfirm>
           </Space>
         )
       }
@@ -135,7 +146,7 @@ const Article = () => {
     // パラメータが変化したときにリストが更新する
     async function fetchArticleList() {
       const res = await getArticleListAPI(params)
-      console.log(res)
+      // console.log(res)
       setArticleList({
         list: res.data.results,
         count: res.data.total_count
@@ -143,10 +154,10 @@ const Article = () => {
     }
     fetchArticleList()
   }, [params])
-  // 表单提交时调用
+  // フフォームの提交時呼び出される関数
   const onFormFinish = (formValue: any) => {
     console.log(formValue)
-    // 处理日期格式
+    // 日付をYYYY-MM-DD形式に変換
     setParams({
       ...params,
       channel_id: formValue.channel_id || 0,
@@ -156,12 +167,23 @@ const Article = () => {
     })
     // パラメータを使ってリストを更新
   }
-  // 分页时调用
+  // ページ変更時呼び出される関数
   const onPageChange = (page: number) => {
     // console.log(page);
     setParams({
       ...params,
       page
+    })
+  }
+  // 記事を削除関数
+  const delArticle = async (data: ArticleData) => {
+    console.log(data)
+    // 記事を削除
+    await delArticleAPI(data.id)
+    // リストを更新
+    setParams({
+      ...params,
+      page: 1
     })
   }
   return (

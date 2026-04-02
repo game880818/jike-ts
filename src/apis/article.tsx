@@ -10,3 +10,10 @@ export const getArticleListAPI = (params: PageData) => {
     params
   })
 }
+
+export const delArticleAPI = (id: string) => {
+  return request({
+    url: `/mp/articles/${id}`,
+    method: 'DELETE',
+  })
+}
