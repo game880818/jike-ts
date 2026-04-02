@@ -35,10 +35,16 @@ interface ListData {
 export interface PageData {
   page: number,
   per_page: number,
-  begin_pubdate: string | null | undefined,
-  end_pubdate: string | null | undefined,
-  status: string | null | undefined,
-  channel_id: number | null | undefined
+  begin_pubdate: string,
+  end_pubdate: string,
+  status: string,
+  channel_id: number
+}
+// フォームの型を定義する
+interface FormData {
+  channel_id: number,
+  status: string,
+  date: Date[]
 }
 
 const Article = () => {
@@ -72,9 +78,10 @@ const Article = () => {
       width: 220
     },
     {
-      title: '状態',
+      title: '公開状態',
       dataIndex: 'status',
-      render: (data: ArticleData) => <Tag color="green">审核通过</Tag>
+      // 1: 審査中, 2: 審査完了
+      render: (data: number) => data === 1 ? <Tag color="warning">審査中</Tag> : <Tag color="success">審査完了</Tag>
     },
     {
       title: '公開日時',
@@ -94,7 +101,7 @@ const Article = () => {
     },
     {
       title: '操作',
-      render: (data: ArticleData) => {
+      render: (data: any) => {
         return (
           <Space size="middle">
             <Button type="primary" shape="circle" icon={<EditOutlined />} />
@@ -115,16 +122,17 @@ const Article = () => {
     list: [],
     count: 0
   })
-  // ページの条件
+  // ページの条件オブジェクト
   const [params, setParams] = useState<PageData>({
     page: 1,
-    per_page: 10,
+    per_page: 4,
     begin_pubdate: '',
     end_pubdate: '',
     status: '',
     channel_id: 0
   })
   useEffect(() => {
+    // パラメータが変化したときにリストが更新する
     async function fetchArticleList() {
       const res = await getArticleListAPI(params)
       console.log(res)
@@ -134,20 +142,44 @@ const Article = () => {
       })
     }
     fetchArticleList()
-  }, [])
+  }, [params])
+  // 表单提交时调用
+  const onFormFinish = (formValue: any) => {
+    console.log(formValue)
+    // 处理日期格式
+    setParams({
+      ...params,
+      channel_id: formValue.channel_id || 0,
+      status: formValue.status || '',
+      begin_pubdate: formValue.date[0].format('YYYY-MM-DD') || '',
+      end_pubdate: formValue.date[1].format('YYYY-MM-DD') || '',
+    })
+    // パラメータを使ってリストを更新
+  }
+  // 分页时调用
+  const onPageChange = (page: number) => {
+    // console.log(page);
+    setParams({
+      ...params,
+      page
+    })
+  }
   return (
     <div>
       <Card
         title={
           <Breadcrumb items={[
             { title: <Link to={'/'}>ホーム</Link> },
-            { title: '文章リスト' },
+            { title: '記事リスト' },
           ]} />
         }
         style={{ marginBottom: 20 }}
       >
-        <Form initialValues={{ status: '' }}>
-          <Form.Item label="状態" name="status">
+        <Form
+          initialValues={{ status: '' }}
+          onFinish={onFormFinish}
+        >
+          <Form.Item label="公開状態" name="status">
             <Radio.Group>
               <Radio value={''}>全部</Radio>
               <Radio value={0}>未公開</Radio>
@@ -157,7 +189,7 @@ const Article = () => {
 
           <Form.Item label="種類" name="channel_id">
             <Select
-              placeholder="種類を選択"
+              placeholder="記事種類を選択"
               style={{ width: 200 }}
             >
               {channel.map(item => <Option key={item.id} value={item.id}>{item.name}</Option>)}
@@ -182,6 +214,12 @@ const Article = () => {
           rowKey="id"
           columns={columns}
           dataSource={articleList.list}
+          pagination={{
+            total: articleList.count,
+            pageSize: params.per_page,
+            current: params.page,
+            onChange: onPageChange
+          }}
         />
       </Card>
     </div>
