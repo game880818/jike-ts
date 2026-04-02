@@ -50,7 +50,7 @@ const Login = () => {
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" size="large" block>
-              登录
+              ログイン
             </Button>
           </Form.Item>
         </Form>
