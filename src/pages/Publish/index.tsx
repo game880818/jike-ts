@@ -13,7 +13,7 @@ import {
 } from 'antd'
 import type { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import { PlusOutlined } from '@ant-design/icons'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import './index.scss'
 
 import { useEffect, useState } from 'react';
@@ -23,10 +23,11 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css'; // 這是 Snow 主題（白底）
 
 // API
-import { getChannelAPI, publishAPI } from '@/apis/publish';
+import { publishAPI } from '@/apis/publish';
 
 const { Option } = Select
 import useGetChannel from '@/hooks/useGetChannel';
+import { getArticleAPI } from '@/apis/article';
 
 // フォームの値の型を定義する
 export interface FormValue {
@@ -40,6 +41,30 @@ const Publish = () => {
   const [imageList, setImageList] = useState<UploadFile[]>([])
   const [imageType, setImageType] = useState<number>(1)
 
+  // 文章IDを取得する
+  const [searchParams] = useSearchParams()
+  const articleId: string = searchParams.get('id') || ''
+
+  const [form] = Form.useForm()
+  useEffect(() => {
+    async function getArticle() {
+      const res = await getArticleAPI(articleId)
+      const { cover, ...articleValue } = res.data
+      form.setFieldsValue({
+        ...articleValue,
+        type: cover.type
+      })
+      // 回填圖片型別
+      setImageType(cover.type)
+      // 回填圖片
+      setImageList(cover.images.map((url: string) => ({ url }))) // 封面list
+    }
+
+    // 文章IDが存在する場合は、文章を取得する
+    if (articleId) {
+      getArticle()
+    }
+  }, [articleId, form])
 
 
   // 文章を公開する関数
@@ -58,7 +83,7 @@ const Publish = () => {
         type: 1,
         cover: {
           type: 1,
-          image: imageList.map(item => item.response.url)
+          images: imageList.map(item => item.response.url)
         }
       }
       console.log(params);
@@ -86,8 +111,8 @@ const Publish = () => {
       <Card
         title={
           <Breadcrumb items={[
-            { title: <Link to={'/'}>首页</Link> },
-            { title: '发布文章' },
+            { title: <Link to={'/'}>ホームページ</Link> },
+            { title: articleId ? '記事編集' : '記事作成' },
           ]}
           />
         }
@@ -97,6 +122,7 @@ const Publish = () => {
           wrapperCol={{ span: 16 }}
           initialValues={{ type: 1 }}
           onFinish={onFormFinish}
+          form={form}
         >
           {/* タイトル */}
           <Form.Item
@@ -137,6 +163,7 @@ const Publish = () => {
                 action={'http://geek.itheima.net/v1_0/upload'}
                 onChange={onUploadChange}
                 maxCount={imageType}
+                fileList={imageList}
               >
                 <div style={{ marginTop: 8 }}>
                   <PlusOutlined />

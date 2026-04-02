@@ -17,3 +17,10 @@ export const delArticleAPI = (id: string) => {
     method: 'DELETE',
   })
 }
+
+export const getArticleAPI = (articleId: string) => {
+  return request({
+    url: `/mp/articles/${articleId}`,
+    method: 'GET',
+  })
+}
