@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select, Tag, Space, Table, Popconfirm } from 'antd'
 import locale from 'antd/es/date-picker/locale/ja_JP'
@@ -9,6 +9,8 @@ import img404 from '@/assets/error.png'
 import useGetChannel from '@/hooks/useGetChannel'
 import { useEffect, useState } from 'react'
 import { delArticleAPI, getArticleListAPI } from '@/apis/article'
+
+import { Dayjs } from 'dayjs';
 
 const { Option } = Select
 const { RangePicker } = DatePicker
@@ -46,9 +48,9 @@ export interface PageData {
 }
 // フォームの型を定義する
 interface FormData {
-  channel_id: number,
   status: string,
-  date: Date[]
+  channel_id?: number,
+  date?: [Dayjs, Dayjs]
 }
 
 const Article = () => {
@@ -67,12 +69,13 @@ const Article = () => {
   //   }
   // ]
   // 准备列数据
+  const navigate = useNavigate()
   const columns = [
     {
       title: 'カバー',
       dataIndex: 'cover',
       width: 120,
-      render: (cover: any) => {
+      render: (cover: CoverData) => {
         return <img src={cover.images[0] || img404} width={80} height={60} alt="" />
       }
     },
@@ -108,7 +111,12 @@ const Article = () => {
       render: (data: ArticleData) => {
         return (
           <Space size="middle">
-            <Button type="primary" shape="circle" icon={<EditOutlined />} />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              onClick={() => navigate(`/publish?id=${data.id}`)}
+            />
             <Popconfirm
               title="この記事を削除しますか?"
               onConfirm={() => delArticle(data)}
@@ -155,15 +163,15 @@ const Article = () => {
     fetchArticleList()
   }, [params])
   // フフォームの提交時呼び出される関数
-  const onFormFinish = (formValue: any) => {
+  const onFormFinish = (formValue: FormData) => {
     console.log(formValue)
     // 日付をYYYY-MM-DD形式に変換
     setParams({
       ...params,
       channel_id: formValue.channel_id || 0,
       status: formValue.status || '',
-      begin_pubdate: formValue.date[0].format('YYYY-MM-DD') || '',
-      end_pubdate: formValue.date[1].format('YYYY-MM-DD') || '',
+      begin_pubdate: formValue.date?.[0]?.format('YYYY-MM-DD') || '',
+      end_pubdate: formValue.date?.[1]?.format('YYYY-MM-DD') || '',
     })
     // パラメータを使ってリストを更新
   }
