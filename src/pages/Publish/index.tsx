@@ -16,7 +16,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import './index.scss'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // react-quill
 import ReactQuill from 'react-quill-new';
@@ -39,6 +39,7 @@ export interface FormValue {
 const Publish = () => {
   const navigate = useNavigate()
   const { channel } = useGetChannel()
+  const cacheImageList = useRef<UploadFile[]>([])
   const [imageList, setImageList] = useState<UploadFile[]>([])
   const [imageType, setImageType] = useState<number>(1)
 
@@ -59,6 +60,8 @@ const Publish = () => {
       setImageType(cover.type)
       // 回填圖片
       setImageList(cover.images.map((url: string) => ({ url }))) // 封面list
+      // 回填圖片(根據type切片)
+      cacheImageList.current = cover.images.map((url: string) => ({ url }))
     }
 
     // 文章IDが存在する場合は、文章の詳細を取得する
@@ -81,9 +84,9 @@ const Publish = () => {
         title,
         channel_id,
         content,
-        type: 1,
+        type: imageType,
         cover: {
-          type: 1,
+          type: imageType,
           images: imageList.map(item => {
             if (item.response) {
               return item.response.data.url
@@ -96,10 +99,12 @@ const Publish = () => {
       console.log(params);
       // 記事を公開するか更新する
       if (articleId) {
+        // 更新
         await editArticleAPI({ ...params, id: articleId })
         message.success('記事が更新されました')
         navigate('/article')
       } else {
+        // 新規公開
         await publishAPI(params)
         message.success('記事が公開されました')
         navigate('/article')
@@ -111,13 +116,18 @@ const Publish = () => {
 
   // 画像をアップロードする関数
   function onUploadChange(info: UploadChangeParam<UploadFile>) {
-    console.log(info);
+    // console.log(info);
     setImageList(info.fileList)
+    cacheImageList.current = info.fileList
   }
 
   // 種類を変更する関数
   function onTypeChange(e: RadioChangeEvent) {
-    setImageType(Number(e.target.value))
+    const type = e.target.value
+    setImageType(Number(type))
+    // 回填圖片(根據type切片)
+    // 画像を写し直す
+    setImageList(cacheImageList.current.slice(0, Number(type)))
   }
 
   return (
