@@ -184,7 +184,7 @@ const Publish = () => {
                 name="image"
                 listType="picture-card"
                 showUploadList
-                action={'http://geek.itheima.net/v1_0/upload'}
+                action={'https://geek.itheima.net/v1_0/upload'}
                 onChange={onUploadChange}
                 maxCount={imageType}
                 fileList={imageList}
