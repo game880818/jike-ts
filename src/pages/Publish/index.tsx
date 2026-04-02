@@ -13,7 +13,7 @@ import {
 } from 'antd'
 import type { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import { PlusOutlined } from '@ant-design/icons'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import './index.scss'
 
 import { useEffect, useState } from 'react';
@@ -27,7 +27,7 @@ import { publishAPI } from '@/apis/publish';
 
 const { Option } = Select
 import useGetChannel from '@/hooks/useGetChannel';
-import { getArticleAPI } from '@/apis/article';
+import { editArticleAPI, getArticleAPI } from '@/apis/article';
 
 // フォームの値の型を定義する
 export interface FormValue {
@@ -37,6 +37,7 @@ export interface FormValue {
 }
 
 const Publish = () => {
+  const navigate = useNavigate()
   const { channel } = useGetChannel()
   const [imageList, setImageList] = useState<UploadFile[]>([])
   const [imageType, setImageType] = useState<number>(1)
@@ -60,7 +61,7 @@ const Publish = () => {
       setImageList(cover.images.map((url: string) => ({ url }))) // 封面list
     }
 
-    // 文章IDが存在する場合は、文章を取得する
+    // 文章IDが存在する場合は、文章の詳細を取得する
     if (articleId) {
       getArticle()
     }
@@ -83,15 +84,28 @@ const Publish = () => {
         type: 1,
         cover: {
           type: 1,
-          images: imageList.map(item => item.response.url)
+          images: imageList.map(item => {
+            if (item.response) {
+              return item.response.data.url
+            } else {
+              return item.url
+            }
+          })
         }
       }
       console.log(params);
-      // 文章を公開する
-      await publishAPI(params)
-      message.success('文章が成功に公開されました')
+      // 記事を公開するか更新する
+      if (articleId) {
+        await editArticleAPI({ ...params, id: articleId })
+        message.success('記事が更新されました')
+        navigate('/article')
+      } else {
+        await publishAPI(params)
+        message.success('記事が公開されました')
+        navigate('/article')
+      }
     } catch (err) {
-      message.error('文章が公開できませんでした')
+      message.error('記事が公開できませんでした')
     }
   }
 
@@ -174,19 +188,19 @@ const Publish = () => {
           <Form.Item
             label="内容"
             name="content"
-            rules={[{ required: true, message: '文章を入力してください' }]}
+            rules={[{ required: true, message: '記事を入力してください' }]}
           >
             <ReactQuill
               className="publish-quill"
               theme="snow"
-              placeholder="文章を入力してください"
+              placeholder="記事を入力してください"
             />
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 4 }}>
             <Space>
               <Button size="large" type="primary" htmlType="submit">
-                发布文章
+                {articleId ? '記事更新' : '記事公開'}
               </Button>
             </Space>
           </Form.Item>

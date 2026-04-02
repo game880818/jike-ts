@@ -162,7 +162,7 @@ const Article = () => {
     }
     fetchArticleList()
   }, [params])
-  // フフォームの提交時呼び出される関数
+  // フォームの提交時呼び出される関数
   const onFormFinish = (formValue: FormData) => {
     console.log(formValue)
     // 日付をYYYY-MM-DD形式に変換
