@@ -43,10 +43,10 @@ const Login = () => {
           <Form.Item
             name='code'
             rules={[
-              { required: true, message: '検証番号を入力してください' },
+              { required: true, message: '認証コードを入力してください' },
             ]}
           >
-            <Input size="large" placeholder="検証番号を入力してください" maxLength={6} />
+            <Input size="large" placeholder="認証コードを入力してください" maxLength={6} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" size="large" block>
